@@ -456,12 +456,16 @@
                         const cooldownCell = row.querySelector('.cooldown-cell');
                         
                         if (dateCell) {
-                            dateCell.textContent = deathTime.toISOString().split('T')[0];
+                            // Format date as YYYY-MM-DD in local time
+                            const year = deathTime.getFullYear();
+                            const month = String(deathTime.getMonth() + 1).padStart(2, '0');
+                            const day = String(deathTime.getDate()).padStart(2, '0');
+                            dateCell.textContent = `${year}-${month}-${day}`;
                         }
                         
                         if (timeCell) {
-                            const hours = deathTime.getHours().toString().padStart(2, '0');
-                            const minutes = deathTime.getMinutes().toString().padStart(2, '0');
+                            const hours = String(deathTime.getHours()).padStart(2, '0');
+                            const minutes = String(deathTime.getMinutes()).padStart(2, '0');
                             timeCell.textContent = `${hours}:${minutes}`;
                         }
                         
@@ -745,9 +749,15 @@
             
             // Parse death time
             const deathDateTime = new Date(deathTime);
-            const dateValue = deathDateTime.toISOString().split('T')[0];
-            const hours = deathDateTime.getHours().toString().padStart(2, '0');
-            const minutes = deathDateTime.getMinutes().toString().padStart(2, '0');
+            
+            // Format date as YYYY-MM-DD for the input
+            const year = deathDateTime.getFullYear();
+            const month = String(deathDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(deathDateTime.getDate()).padStart(2, '0');
+            const dateValue = `${year}-${month}-${day}`;
+            
+            const hours = String(deathDateTime.getHours()).padStart(2, '0');
+            const minutes = String(deathDateTime.getMinutes()).padStart(2, '0');
             const timeValue = `${hours}:${minutes}`;
             
             // Create date input
