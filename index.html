@@ -75,44 +75,9 @@
             background-color: #f0f0f0;
         }
         
-        .edit-input {
-            width: 100%;
-            padding: 4px;
-            border: 1px solid #4CAF50;
-            border-radius: 3px;
-        }
-        
-        .save-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        .save-btn:hover {
-            background-color: #45a049;
-        }
-        
-        .cancel-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        .cancel-btn:hover {
-            background-color: #d32f2f;
-        }
-        
-        .edit-controls {
-            display: inline-block;
-            margin-left: 5px;
+        .editable:focus {
+            outline: 2px solid #4CAF50;
+            background-color: #fff;
         }
         
         .instructions {
@@ -156,7 +121,7 @@
         <h1>Boss Respawn Tracker</h1>
         
         <div class="instructions">
-            <strong>Instructions:</strong> Click on any date, time, or cooldown to edit. The respawn times will automatically update and the next boss to respawn will be highlighted in orange. All changes are automatically saved.
+            <strong>Instructions:</strong> Click on any date, time, or cooldown to edit. Press Enter to save or Escape to cancel. The respawn times will automatically update and the next boss to respawn will be highlighted in orange. All changes are automatically saved.
         </div>
         
         <table id="bossTable">
@@ -175,37 +140,37 @@
                 <!-- Regular Bosses -->
                 <tr data-boss-id="shadow-beast" data-cooldown="24">
                     <td>Corrupted Basin</td>
-                    <td>Venatus</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">14:30</td>
-                    <td class="editable cooldown-cell">10h</td>
+                    <td>Shadow Beast</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">14:30</td>
+                    <td class="editable cooldown-cell" contenteditable="true">24h</td>
                     <td class="respawn-cell">14:30 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="water-elemental" data-cooldown="18">
                     <td>Cresent Lake</td>
-                    <td>Viorent</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">16:45</td>
-                    <td class="editable cooldown-cell">10h</td>
+                    <td>Water Elemental</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">16:45</td>
+                    <td class="editable cooldown-cell" contenteditable="true">18h</td>
                     <td class="respawn-cell">10:45 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="forest-guardian" data-cooldown="36">
-                    <td>Ulan Canyon</td>
-                    <td>Ego</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">09:20</td>
-                    <td class="editable cooldown-cell">21h</td>
+                    <td>Dark Forest</td>
+                    <td>Forest Guardian</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">09:20</td>
+                    <td class="editable cooldown-cell" contenteditable="true">36h</td>
                     <td class="respawn-cell">21:20 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="lava-golem" data-cooldown="48">
-                    <td>Protector's Ruins</td>
-                    <td>Livera</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">11:15</td>
-                    <td class="editable cooldown-cell">24h</td>
+                    <td>Burning Peaks</td>
+                    <td>Lava Golem</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">11:15</td>
+                    <td class="editable cooldown-cell" contenteditable="true">48h</td>
                     <td class="respawn-cell">11:15 (in 2 days)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -217,36 +182,36 @@
                 <tr data-boss-id="clementis" data-cooldown="24">
                     <td>Crystal Caverns</td>
                     <td>Clementis</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">13:25</td>
-                    <td class="editable cooldown-cell">24h</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">13:25</td>
+                    <td class="editable cooldown-cell" contenteditable="true">24h</td>
                     <td class="respawn-cell">13:25 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="general-kaine" data-cooldown="72">
                     <td>Iron Fortress</td>
                     <td>General Kaine</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">10:40</td>
-                    <td class="editable cooldown-cell">72h</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">10:40</td>
+                    <td class="editable cooldown-cell" contenteditable="true">72h</td>
                     <td class="respawn-cell">10:40 (in 3 days)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="thunder-lord" data-cooldown="12">
                     <td>Storm Temple</td>
                     <td>Thunder Lord</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">15:50</td>
-                    <td class="editable cooldown-cell">12h</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">15:50</td>
+                    <td class="editable cooldown-cell" contenteditable="true">12h</td>
                     <td class="respawn-cell">03:50 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="ice-queen" data-cooldown="24">
                     <td>Frost Valley</td>
                     <td>Ice Queen</td>
-                    <td class="editable date-cell">2023-05-15</td>
-                    <td class="editable time-cell">08:30</td>
-                    <td class="editable cooldown-cell">24h</td>
+                    <td class="editable date-cell" contenteditable="true">2023-05-15</td>
+                    <td class="editable time-cell" contenteditable="true">08:30</td>
+                    <td class="editable cooldown-cell" contenteditable="true">24h</td>
                     <td class="respawn-cell">08:30 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -479,192 +444,95 @@
             updateTime();
         }
         
-        // Function to make cells editable
-        function makeEditable() {
-            const dateCells = document.querySelectorAll('.date-cell');
-            const timeCells = document.querySelectorAll('.time-cell');
-            const cooldownCells = document.querySelectorAll('.cooldown-cell');
+        // Function to handle cell editing
+        function setupCellEditing() {
+            // Get all editable cells
+            const editableCells = document.querySelectorAll('.editable');
             
-            // Make date and time cells editable
-            [...dateCells, ...timeCells].forEach(cell => {
-                cell.addEventListener('click', function() {
-                    if (this.querySelector('input')) return; // Already being edited
-                    
-                    const row = this.closest('tr');
-                    const deathTime = row.dataset.deathTime;
-                    const currentValue = this.textContent.trim();
-                    const isDateCell = this.classList.contains('date-cell');
-                    
-                    // Create input element
-                    const input = document.createElement('input');
-                    input.type = isDateCell ? 'date' : 'time';
-                    input.className = 'edit-input';
-                    
-                    // Set input value based on deathTime
-                    if (isDateCell) {
-                        const date = new Date(deathTime);
-                        input.value = date.toISOString().split('T')[0];
-                    } else {
-                        const date = new Date(deathTime);
-                        const hours = date.getHours().toString().padStart(2, '0');
-                        const minutes = date.getMinutes().toString().padStart(2, '0');
-                        input.value = `${hours}:${minutes}`;
+            editableCells.forEach(cell => {
+                // Store original value
+                let originalValue = cell.textContent.trim();
+                
+                // Focus event - when cell is focused
+                cell.addEventListener('focus', function() {
+                    originalValue = this.textContent.trim();
+                });
+                
+                // Blur event - when cell loses focus
+                cell.addEventListener('blur', function() {
+                    handleCellEdit(this, originalValue);
+                });
+                
+                // Keydown event - for Enter and Escape
+                cell.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        this.textContent = originalValue;
+                        this.blur();
                     }
-                    
-                    // Create save button
-                    const saveBtn = document.createElement('button');
-                    saveBtn.textContent = 'Save';
-                    saveBtn.className = 'save-btn';
-                    
-                    // Create cancel button
-                    const cancelBtn = document.createElement('button');
-                    cancelBtn.textContent = 'Cancel';
-                    cancelBtn.className = 'cancel-btn';
-                    
-                    // Create controls container
-                    const controls = document.createElement('span');
-                    controls.className = 'edit-controls';
-                    controls.appendChild(saveBtn);
-                    controls.appendChild(cancelBtn);
-                    
-                    // Replace cell content with input and buttons
-                    this.innerHTML = '';
-                    this.appendChild(input);
-                    this.appendChild(controls);
-                    
-                    // Focus on input
-                    input.focus();
-                    
-                    // Save button click handler
-                    saveBtn.addEventListener('click', function() {
-                        const dateCell = row.querySelector('.date-cell');
-                        const timeCell = row.querySelector('.time-cell');
-                        
-                        // Get values from inputs
-                        let dateValue, timeValue;
-                        if (isDateCell) {
-                            dateValue = input.value;
-                            const timeInput = timeCell.querySelector('input');
-                            timeValue = timeInput ? timeInput.value : deathTime.split('T')[1];
-                        } else {
-                            timeValue = input.value;
-                            const dateInput = dateCell.querySelector('input');
-                            dateValue = dateInput ? dateInput.value : deathTime.split('T')[0];
-                        }
-                        
-                        // Update data attribute
-                        const newDeathTime = `${dateValue}T${timeValue}`;
-                        row.dataset.deathTime = newDeathTime;
-                        
-                        // Update display values
-                        if (isDateCell) {
-                            dateCell.textContent = dateValue;
-                        } else {
-                            timeCell.textContent = timeValue;
-                        }
-                        
-                        // Save to localStorage and update respawn times
-                        saveToLocalStorage();
-                        updateRespawnTimes();
-                    });
-                    
-                    // Cancel button click handler
-                    cancelBtn.addEventListener('click', function() {
-                        if (isDateCell) {
-                            cell.textContent = currentValue;
-                        } else {
-                            cell.textContent = currentValue;
-                        }
-                    });
-                    
-                    // Enter key to save
-                    input.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') {
-                            saveBtn.click();
-                        } else if (e.key === 'Escape') {
-                            cancelBtn.click();
-                        }
-                    });
                 });
             });
+        }
+        
+        // Function to handle cell edit
+        function handleCellEdit(cell, originalValue) {
+            const row = cell.closest('tr');
+            const newValue = cell.textContent.trim();
             
-            // Make cooldown cells editable
-            cooldownCells.forEach(cell => {
-                cell.addEventListener('click', function() {
-                    if (this.querySelector('input')) return; // Already being edited
-                    
-                    const row = this.closest('tr');
-                    const currentValue = this.textContent.trim();
-                    const currentCooldown = row.dataset.cooldown;
-                    
-                    // Create input element
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.min = '1';
-                    input.max = '168'; // Max 7 days
-                    input.className = 'edit-input';
-                    input.value = currentCooldown;
-                    
-                    // Create save button
-                    const saveBtn = document.createElement('button');
-                    saveBtn.textContent = 'Save';
-                    saveBtn.className = 'save-btn';
-                    
-                    // Create cancel button
-                    const cancelBtn = document.createElement('button');
-                    cancelBtn.textContent = 'Cancel';
-                    cancelBtn.className = 'cancel-btn';
-                    
-                    // Create controls container
-                    const controls = document.createElement('span');
-                    controls.className = 'edit-controls';
-                    controls.appendChild(saveBtn);
-                    controls.appendChild(cancelBtn);
-                    
-                    // Replace cell content with input and buttons
-                    this.innerHTML = '';
-                    this.appendChild(input);
-                    this.appendChild(controls);
-                    
-                    // Focus on input
-                    input.focus();
-                    input.select();
-                    
-                    // Save button click handler
-                    saveBtn.addEventListener('click', function() {
-                        const newCooldown = input.value;
-                        
-                        // Validate input
-                        if (newCooldown && parseInt(newCooldown) > 0 && parseInt(newCooldown) <= 168) {
-                            // Update data attribute
-                            row.dataset.cooldown = newCooldown;
-                            
-                            // Update display value
-                            cell.textContent = `${newCooldown}h`;
-                            
-                            // Save to localStorage and update respawn times
-                            saveToLocalStorage();
-                            updateRespawnTimes();
-                        } else {
-                            alert('Please enter a valid cooldown between 1 and 168 hours');
-                        }
-                    });
-                    
-                    // Cancel button click handler
-                    cancelBtn.addEventListener('click', function() {
-                        cell.textContent = currentValue;
-                    });
-                    
-                    // Enter key to save
-                    input.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') {
-                            saveBtn.click();
-                        } else if (e.key === 'Escape') {
-                            cancelBtn.click();
-                        }
-                    });
-                });
-            });
+            // If value hasn't changed, do nothing
+            if (newValue === originalValue) return;
+            
+            const isDateCell = cell.classList.contains('date-cell');
+            const isTimeCell = cell.classList.contains('time-cell');
+            const isCooldownCell = cell.classList.contains('cooldown-cell');
+            
+            if (isDateCell || isTimeCell) {
+                const dateCell = row.querySelector('.date-cell');
+                const timeCell = row.querySelector('.time-cell');
+                
+                // Get current values
+                const dateValue = dateCell.textContent.trim();
+                const timeValue = timeCell.textContent.trim();
+                
+                // Validate date format (YYYY-MM-DD)
+                if (isDateCell && !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    cell.textContent = originalValue;
+                    alert('Please enter date in YYYY-MM-DD format');
+                    return;
+                }
+                
+                // Validate time format (HH:MM)
+                if (isTimeCell && !/^\d{2}:\d{2}$/.test(timeValue)) {
+                    cell.textContent = originalValue;
+                    alert('Please enter time in HH:MM format');
+                    return;
+                }
+                
+                // Update death time
+                const newDeathTime = `${dateValue}T${timeValue}`;
+                row.dataset.deathTime = newDeathTime;
+                
+            } else if (isCooldownCell) {
+                // Remove 'h' from the end and validate
+                const cooldownValue = newValue.replace('h', '').trim();
+                
+                if (!/^\d+$/.test(cooldownValue) || parseInt(cooldownValue) <= 0 || parseInt(cooldownValue) > 168) {
+                    cell.textContent = originalValue;
+                    alert('Please enter a valid cooldown between 1 and 168 hours');
+                    return;
+                }
+                
+                // Update cooldown
+                row.dataset.cooldown = cooldownValue;
+                cell.textContent = `${cooldownValue}h`;
+            }
+            
+            // Save to localStorage and update respawn times
+            saveToLocalStorage();
+            updateRespawnTimes();
         }
         
         // Update the last updated time
@@ -678,8 +546,8 @@
             // Load data from localStorage or initialize with defaults
             const hasSavedData = loadFromLocalStorage();
             
-            // Make cells editable
-            makeEditable();
+            // Setup cell editing
+            setupCellEditing();
             
             // Update respawn times
             updateRespawnTimes();
