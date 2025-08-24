@@ -156,7 +156,7 @@
         <h1>Boss Respawn Tracker</h1>
         
         <div class="instructions">
-            <strong>Instructions:</strong> Click on any date or time to edit. The respawn times will automatically update and the next boss to respawn will be highlighted in orange. All changes are automatically saved.
+            <strong>Instructions:</strong> Click on any date, time, or cooldown to edit. The respawn times will automatically update and the next boss to respawn will be highlighted in orange. All changes are automatically saved.
         </div>
         
         <table id="bossTable">
@@ -178,34 +178,34 @@
                     <td>Venatus</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">14:30</td>
-                    <td>10h</td>
+                    <td class="editable cooldown-cell">10h</td>
                     <td class="respawn-cell">14:30 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="water-elemental" data-cooldown="18">
                     <td>Cresent Lake</td>
-                    <td>Water Elemental</td>
+                    <td>Viorent</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">16:45</td>
-                    <td>10h</td>
+                    <td class="editable cooldown-cell">10h</td>
                     <td class="respawn-cell">10:45 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="forest-guardian" data-cooldown="36">
-                    <td>Dark Forest</td>
-                    <td>Forest Guardian</td>
+                    <td>Ulan Canyon</td>
+                    <td>Ego</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">09:20</td>
-                    <td>36h</td>
+                    <td class="editable cooldown-cell">21h</td>
                     <td class="respawn-cell">21:20 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="lava-golem" data-cooldown="48">
-                    <td>Burning Peaks</td>
-                    <td>Lava Golem</td>
+                    <td>Protector's Ruins</td>
+                    <td>Livera</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">11:15</td>
-                    <td>48h</td>
+                    <td class="editable cooldown-cell">24h</td>
                     <td class="respawn-cell">11:15 (in 2 days)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -219,7 +219,7 @@
                     <td>Clementis</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">13:25</td>
-                    <td>24h</td>
+                    <td class="editable cooldown-cell">24h</td>
                     <td class="respawn-cell">13:25 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -228,7 +228,7 @@
                     <td>General Kaine</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">10:40</td>
-                    <td>72h</td>
+                    <td class="editable cooldown-cell">72h</td>
                     <td class="respawn-cell">10:40 (in 3 days)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -237,7 +237,7 @@
                     <td>Thunder Lord</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">15:50</td>
-                    <td>12h</td>
+                    <td class="editable cooldown-cell">12h</td>
                     <td class="respawn-cell">03:50 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -246,7 +246,7 @@
                     <td>Ice Queen</td>
                     <td class="editable date-cell">2023-05-15</td>
                     <td class="editable time-cell">08:30</td>
-                    <td>24h</td>
+                    <td class="editable cooldown-cell">24h</td>
                     <td class="respawn-cell">08:30 (next day)</td>
                     <td class="time-left-cell"></td>
                 </tr>
@@ -275,6 +275,18 @@
             'ice-queen': '2023-05-15T08:30'
         };
         
+        // Default cooldowns for each boss
+        const defaultCooldowns = {
+            'shadow-beast': '24',
+            'water-elemental': '18',
+            'forest-guardian': '36',
+            'lava-golem': '48',
+            'clementis': '24',
+            'general-kaine': '72',
+            'thunder-lord': '12',
+            'ice-queen': '24'
+        };
+        
         // Function to save data to localStorage
         function saveToLocalStorage() {
             const rows = document.querySelectorAll('#bossTable tbody tr:not(.fixed-boss-header)');
@@ -285,9 +297,13 @@
                 
                 const bossId = row.dataset.bossId;
                 const deathTime = row.dataset.deathTime;
+                const cooldown = row.dataset.cooldown;
                 
-                if (bossId && deathTime) {
-                    bossData[bossId] = deathTime;
+                if (bossId && deathTime && cooldown) {
+                    bossData[bossId] = {
+                        deathTime: deathTime,
+                        cooldown: cooldown
+                    };
                 }
             });
             
@@ -305,12 +321,15 @@
                 Object.keys(bossData).forEach(bossId => {
                     const row = document.querySelector(`tr[data-boss-id="${bossId}"]`);
                     if (row) {
-                        row.dataset.deathTime = bossData[bossId];
+                        const data = bossData[bossId];
+                        row.dataset.deathTime = data.deathTime;
+                        row.dataset.cooldown = data.cooldown;
                         
                         // Update display values
-                        const deathTime = new Date(bossData[bossId]);
+                        const deathTime = new Date(data.deathTime);
                         const dateCell = row.querySelector('.date-cell');
                         const timeCell = row.querySelector('.time-cell');
+                        const cooldownCell = row.querySelector('.cooldown-cell');
                         
                         if (dateCell) {
                             dateCell.textContent = deathTime.toISOString().split('T')[0];
@@ -320,6 +339,10 @@
                             const hours = deathTime.getHours().toString().padStart(2, '0');
                             const minutes = deathTime.getMinutes().toString().padStart(2, '0');
                             timeCell.textContent = `${hours}:${minutes}`;
+                        }
+                        
+                        if (cooldownCell) {
+                            cooldownCell.textContent = `${data.cooldown}h`;
                         }
                     }
                 });
@@ -339,8 +362,9 @@
                 if (row.classList.contains('fixed-boss-header')) return;
                 
                 const bossId = row.dataset.bossId;
-                if (bossId && defaultDeathTimes[bossId]) {
+                if (bossId && defaultDeathTimes[bossId] && defaultCooldowns[bossId]) {
                     row.dataset.deathTime = defaultDeathTimes[bossId];
+                    row.dataset.cooldown = defaultCooldowns[bossId];
                 }
             });
             
@@ -459,7 +483,9 @@
         function makeEditable() {
             const dateCells = document.querySelectorAll('.date-cell');
             const timeCells = document.querySelectorAll('.time-cell');
+            const cooldownCells = document.querySelectorAll('.cooldown-cell');
             
+            // Make date and time cells editable
             [...dateCells, ...timeCells].forEach(cell => {
                 cell.addEventListener('click', function() {
                     if (this.querySelector('input')) return; // Already being edited
@@ -549,6 +575,84 @@
                         } else {
                             cell.textContent = currentValue;
                         }
+                    });
+                    
+                    // Enter key to save
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            saveBtn.click();
+                        } else if (e.key === 'Escape') {
+                            cancelBtn.click();
+                        }
+                    });
+                });
+            });
+            
+            // Make cooldown cells editable
+            cooldownCells.forEach(cell => {
+                cell.addEventListener('click', function() {
+                    if (this.querySelector('input')) return; // Already being edited
+                    
+                    const row = this.closest('tr');
+                    const currentValue = this.textContent.trim();
+                    const currentCooldown = row.dataset.cooldown;
+                    
+                    // Create input element
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '168'; // Max 7 days
+                    input.className = 'edit-input';
+                    input.value = currentCooldown;
+                    
+                    // Create save button
+                    const saveBtn = document.createElement('button');
+                    saveBtn.textContent = 'Save';
+                    saveBtn.className = 'save-btn';
+                    
+                    // Create cancel button
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.className = 'cancel-btn';
+                    
+                    // Create controls container
+                    const controls = document.createElement('span');
+                    controls.className = 'edit-controls';
+                    controls.appendChild(saveBtn);
+                    controls.appendChild(cancelBtn);
+                    
+                    // Replace cell content with input and buttons
+                    this.innerHTML = '';
+                    this.appendChild(input);
+                    this.appendChild(controls);
+                    
+                    // Focus on input
+                    input.focus();
+                    input.select();
+                    
+                    // Save button click handler
+                    saveBtn.addEventListener('click', function() {
+                        const newCooldown = input.value;
+                        
+                        // Validate input
+                        if (newCooldown && parseInt(newCooldown) > 0 && parseInt(newCooldown) <= 168) {
+                            // Update data attribute
+                            row.dataset.cooldown = newCooldown;
+                            
+                            // Update display value
+                            cell.textContent = `${newCooldown}h`;
+                            
+                            // Save to localStorage and update respawn times
+                            saveToLocalStorage();
+                            updateRespawnTimes();
+                        } else {
+                            alert('Please enter a valid cooldown between 1 and 168 hours');
+                        }
+                    });
+                    
+                    // Cancel button click handler
+                    cancelBtn.addEventListener('click', function() {
+                        cell.textContent = currentValue;
                     });
                     
                     // Enter key to save
