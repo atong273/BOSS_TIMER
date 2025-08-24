@@ -54,16 +54,9 @@
             font-weight: bold;
         }
         
-        .note {
-            font-style: italic;
-            color: #555;
-        }
-        
         .time-remaining {
-            display: block;
             font-weight: bold;
             color: #d32f2f;
-            margin-top: 4px;
         }
         
         .last-updated {
@@ -175,7 +168,7 @@
                     <th>Last death</th>
                     <th>Cooldown</th>
                     <th>Respawn</th>
-                    <th>Note</th>
+                    <th>Time Left</th>
                 </tr>
             </thead>
             <tbody>
@@ -187,7 +180,7 @@
                     <td class="editable time-cell">14:30</td>
                     <td>24h</td>
                     <td class="respawn-cell">14:30 (next day)</td>
-                    <td class="note" data-original-note="Drops rare weapon">Drops rare weapon</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="water-elemental" data-cooldown="18">
                     <td>Cresent Lake</td>
@@ -196,7 +189,7 @@
                     <td class="editable time-cell">16:45</td>
                     <td>18h</td>
                     <td class="respawn-cell">10:45 (next day)</td>
-                    <td class="note" data-original-note="Requires water resistance">Requires water resistance</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="forest-guardian" data-cooldown="36">
                     <td>Dark Forest</td>
@@ -205,7 +198,7 @@
                     <td class="editable time-cell">09:20</td>
                     <td>36h</td>
                     <td class="respawn-cell">21:20 (next day)</td>
-                    <td class="note" data-original-note="Summoning ritual needed">Summoning ritual needed</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="lava-golem" data-cooldown="48">
                     <td>Burning Peaks</td>
@@ -214,7 +207,7 @@
                     <td class="editable time-cell">11:15</td>
                     <td>48h</td>
                     <td class="respawn-cell">11:15 (in 2 days)</td>
-                    <td class="note" data-original-note="Fire immunity required">Fire immunity required</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 
                 <!-- Fixed Bosses Section -->
@@ -228,7 +221,7 @@
                     <td class="editable time-cell">13:25</td>
                     <td>24h</td>
                     <td class="respawn-cell">13:25 (next day)</td>
-                    <td class="note" data-original-note="Crystal weapons effective">Crystal weapons effective</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="general-kaine" data-cooldown="72">
                     <td>Iron Fortress</td>
@@ -237,7 +230,7 @@
                     <td class="editable time-cell">10:40</td>
                     <td>72h</td>
                     <td class="respawn-cell">10:40 (in 3 days)</td>
-                    <td class="note" data-original-note="Weekly reset boss">Weekly reset boss</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="thunder-lord" data-cooldown="12">
                     <td>Storm Temple</td>
@@ -246,7 +239,7 @@
                     <td class="editable time-cell">15:50</td>
                     <td>12h</td>
                     <td class="respawn-cell">03:50 (next day)</td>
-                    <td class="note" data-original-note="Lightning resistance gear">Lightning resistance gear</td>
+                    <td class="time-left-cell"></td>
                 </tr>
                 <tr data-boss-id="ice-queen" data-cooldown="24">
                     <td>Frost Valley</td>
@@ -255,7 +248,7 @@
                     <td class="editable time-cell">08:30</td>
                     <td>24h</td>
                     <td class="respawn-cell">08:30 (next day)</td>
-                    <td class="note" data-original-note="Winter event boss">Winter event boss</td>
+                    <td class="time-left-cell"></td>
                 </tr>
             </tbody>
         </table>
@@ -431,7 +424,7 @@
                 if (row.classList.contains('fixed-boss-header')) return;
                 
                 const respawnCell = row.querySelector('.respawn-cell');
-                const noteCell = row.querySelector('.note');
+                const timeLeftCell = row.querySelector('.time-left-cell');
                 const deathTime = row.dataset.deathTime;
                 const cooldown = row.dataset.cooldown;
                 
@@ -440,11 +433,8 @@
                 // Update respawn cell (only time and date)
                 respawnCell.textContent = `${respawnData.respawnTime} (${respawnData.respawnDate})`;
                 
-                // Get original note from data attribute
-                const originalNote = noteCell.dataset.originalNote || noteCell.textContent.trim();
-                
-                // Update note cell with time remaining
-                noteCell.innerHTML = `${originalNote}<span class="time-remaining">${respawnData.timeRemaining}</span>`;
+                // Update time left cell with only the time remaining
+                timeLeftCell.innerHTML = `<span class="time-remaining">${respawnData.timeRemaining}</span>`;
                 
                 // Check if this is the next boss to respawn
                 if (respawnData.timeRemainingMs > 0 && respawnData.timeRemainingMs < minTimeRemaining) {
@@ -573,17 +563,6 @@
             });
         }
         
-        // Function to initialize original notes
-        function initializeOriginalNotes() {
-            const noteCells = document.querySelectorAll('.note');
-            noteCells.forEach(cell => {
-                // Only set original note if it hasn't been set already
-                if (!cell.dataset.originalNote) {
-                    cell.dataset.originalNote = cell.textContent.trim();
-                }
-            });
-        }
-        
         // Update the last updated time
         function updateTime() {
             const now = new Date();
@@ -592,9 +571,6 @@
         
         // Initialize the table
         window.onload = function() {
-            // Initialize original notes
-            initializeOriginalNotes();
-            
             // Load data from localStorage or initialize with defaults
             const hasSavedData = loadFromLocalStorage();
             
