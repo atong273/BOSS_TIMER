@@ -26,6 +26,12 @@
             margin-bottom: 20px;
         }
         
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -956,7 +962,7 @@
             // Load data from localStorage or initialize with defaults
             const hasSavedData = loadFromLocalStorage();
             
-            // Update respawn times
+            // Update respawn times - this ensures time remaining is calculated on page load
             updateRespawnTimes();
             
             // Update time every minute
