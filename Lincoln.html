@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Respawn Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .fixed-boss-header {
+            background-color: #ffeb3b !important;
+            font-weight: bold;
+        }
+        
+        .next-respawn {
+            background-color: #ff9800;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .note {
+            font-style: italic;
+            color: #555;
+        }
+        
+        .time-remaining {
+            display: block;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-top: 4px;
+        }
+        
+        .last-updated {
+            text-align: right;
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 10px;
+        }
+        
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .editable:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .edit-input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #4CAF50;
+            border-radius: 3px;
+        }
+        
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        
+        .save-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .edit-controls {
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .instructions {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .reset-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .reset-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Boss Respawn Tracker</h1>
+        
+        <div class="instructions">
+            <strong>Instructions:</strong> Click on any date or time to edit. The respawn times will automatically update and the next boss to respawn will be highlighted in orange. All changes are automatically saved.
+        </div>
+        
+        <table id="bossTable">
+            <thead>
+                <tr>
+                    <th>Map</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Last death</th>
+                    <th>Cooldown</th>
+                    <th>Respawn</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Regular Bosses -->
+                <tr data-boss-id="shadow-beast" data-cooldown="24">
+                    <td>Corrupted Basin</td>
+                    <td>Shadow Beast</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">14:30</td>
+                    <td>24h</td>
+                    <td class="respawn-cell">14:30 (next day)</td>
+                    <td class="note" data-original-note="Drops rare weapon">Drops rare weapon</td>
+                </tr>
+                <tr data-boss-id="water-elemental" data-cooldown="18">
+                    <td>Cresent Lake</td>
+                    <td>Water Elemental</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">16:45</td>
+                    <td>18h</td>
+                    <td class="respawn-cell">10:45 (next day)</td>
+                    <td class="note" data-original-note="Requires water resistance">Requires water resistance</td>
+                </tr>
+                <tr data-boss-id="forest-guardian" data-cooldown="36">
+                    <td>Dark Forest</td>
+                    <td>Forest Guardian</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">09:20</td>
+                    <td>36h</td>
+                    <td class="respawn-cell">21:20 (next day)</td>
+                    <td class="note" data-original-note="Summoning ritual needed">Summoning ritual needed</td>
+                </tr>
+                <tr data-boss-id="lava-golem" data-cooldown="48">
+                    <td>Burning Peaks</td>
+                    <td>Lava Golem</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">11:15</td>
+                    <td>48h</td>
+                    <td class="respawn-cell">11:15 (in 2 days)</td>
+                    <td class="note" data-original-note="Fire immunity required">Fire immunity required</td>
+                </tr>
+                
+                <!-- Fixed Bosses Section -->
+                <tr class="fixed-boss-header">
+                    <td colspan="7">Fixed boss</td>
+                </tr>
+                <tr data-boss-id="clementis" data-cooldown="24">
+                    <td>Crystal Caverns</td>
+                    <td>Clementis</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">13:25</td>
+                    <td>24h</td>
+                    <td class="respawn-cell">13:25 (next day)</td>
+                    <td class="note" data-original-note="Crystal weapons effective">Crystal weapons effective</td>
+                </tr>
+                <tr data-boss-id="general-kaine" data-cooldown="72">
+                    <td>Iron Fortress</td>
+                    <td>General Kaine</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">10:40</td>
+                    <td>72h</td>
+                    <td class="respawn-cell">10:40 (in 3 days)</td>
+                    <td class="note" data-original-note="Weekly reset boss">Weekly reset boss</td>
+                </tr>
+                <tr data-boss-id="thunder-lord" data-cooldown="12">
+                    <td>Storm Temple</td>
+                    <td>Thunder Lord</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">15:50</td>
+                    <td>12h</td>
+                    <td class="respawn-cell">03:50 (next day)</td>
+                    <td class="note" data-original-note="Lightning resistance gear">Lightning resistance gear</td>
+                </tr>
+                <tr data-boss-id="ice-queen" data-cooldown="24">
+                    <td>Frost Valley</td>
+                    <td>Ice Queen</td>
+                    <td class="editable date-cell">2023-05-15</td>
+                    <td class="editable time-cell">08:30</td>
+                    <td>24h</td>
+                    <td class="respawn-cell">08:30 (next day)</td>
+                    <td class="note" data-original-note="Winter event boss">Winter event boss</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <button class="reset-btn" onclick="resetToDefault()">Reset to Default Times</button>
+        
+        <div class="last-updated">
+            Last updated: <span id="updateTime"></span>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Data saved successfully!</div>
+
+    <script>
+        // Default death times for each boss
+        const defaultDeathTimes = {
+            'shadow-beast': '2023-05-15T14:30',
+            'water-elemental': '2023-05-15T16:45',
+            'forest-guardian': '2023-05-15T09:20',
+            'lava-golem': '2023-05-15T11:15',
+            'clementis': '2023-05-15T13:25',
+            'general-kaine': '2023-05-15T10:40',
+            'thunder-lord': '2023-05-15T15:50',
+            'ice-queen': '2023-05-15T08:30'
+        };
+        
+        // Function to save data to localStorage
+        function saveToLocalStorage() {
+            const rows = document.querySelectorAll('#bossTable tbody tr:not(.fixed-boss-header)');
+            const bossData = {};
+            
+            rows.forEach(row => {
+                if (row.classList.contains('fixed-boss-header')) return;
+                
+                const bossId = row.dataset.bossId;
+                const deathTime = row.dataset.deathTime;
+                
+                if (bossId && deathTime) {
+                    bossData[bossId] = deathTime;
+                }
+            });
+            
+            localStorage.setItem('bossRespawnData', JSON.stringify(bossData));
+            showNotification('Data saved successfully!');
+        }
+        
+        // Function to load data from localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('bossRespawnData');
+            
+            if (savedData) {
+                const bossData = JSON.parse(savedData);
+                
+                Object.keys(bossData).forEach(bossId => {
+                    const row = document.querySelector(`tr[data-boss-id="${bossId}"]`);
+                    if (row) {
+                        row.dataset.deathTime = bossData[bossId];
+                        
+                        // Update display values
+                        const deathTime = new Date(bossData[bossId]);
+                        const dateCell = row.querySelector('.date-cell');
+                        const timeCell = row.querySelector('.time-cell');
+                        
+                        if (dateCell) {
+                            dateCell.textContent = deathTime.toISOString().split('T')[0];
+                        }
+                        
+                        if (timeCell) {
+                            const hours = deathTime.getHours().toString().padStart(2, '0');
+                            const minutes = deathTime.getMinutes().toString().padStart(2, '0');
+                            timeCell.textContent = `${hours}:${minutes}`;
+                        }
+                    }
+                });
+                
+                return true;
+            }
+            
+            // If no saved data, initialize with default times
+            return initializeDefaultTimes();
+        }
+        
+        // Function to initialize default times
+        function initializeDefaultTimes() {
+            const rows = document.querySelectorAll('#bossTable tbody tr:not(.fixed-boss-header)');
+            
+            rows.forEach(row => {
+                if (row.classList.contains('fixed-boss-header')) return;
+                
+                const bossId = row.dataset.bossId;
+                if (bossId && defaultDeathTimes[bossId]) {
+                    row.dataset.deathTime = defaultDeathTimes[bossId];
+                }
+            });
+            
+            return false;
+        }
+        
+        // Function to reset to default times
+        function resetToDefault() {
+            if (confirm('Are you sure you want to reset all boss times to default?')) {
+                localStorage.removeItem('bossRespawnData');
+                initializeDefaultTimes();
+                updateRespawnTimes();
+                showNotification('Reset to default times!');
+            }
+        }
+        
+        // Function to show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Function to calculate respawn time and time remaining
+        function calculateRespawn(deathTimeStr, cooldownHours) {
+            // Parse death time from ISO format
+            const deathDateTime = new Date(deathTimeStr);
+            
+            if (isNaN(deathDateTime.getTime())) {
+                return {
+                    respawnDateTime: null,
+                    respawnDate: 'Invalid Date',
+                    respawnTime: 'Invalid Time',
+                    timeRemaining: 'Invalid Input',
+                    timeRemainingMs: Infinity
+                };
+            }
+            
+            // Calculate respawn time
+            const respawnDateTime = new Date(deathDateTime);
+            respawnDateTime.setHours(respawnDateTime.getHours() + parseInt(cooldownHours));
+            
+            // Calculate time remaining
+            const now = new Date();
+            const timeRemainingMs = respawnDateTime - now;
+            const timeRemainingHours = Math.floor(timeRemainingMs / (1000 * 60 * 60));
+            const timeRemainingMinutes = Math.floor((timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            // Format respawn time
+            const respawnDate = respawnDateTime.toLocaleDateString();
+            const respawnTime = respawnDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Format time remaining
+            let timeRemainingStr = '';
+            if (timeRemainingMs > 0) {
+                timeRemainingStr = `${timeRemainingHours}h ${timeRemainingMinutes}m left`;
+            } else {
+                timeRemainingStr = 'Ready to respawn';
+            }
+            
+            return {
+                respawnDateTime,
+                respawnDate,
+                respawnTime,
+                timeRemaining: timeRemainingStr,
+                timeRemainingMs
+            };
+        }
+        
+        // Function to update respawn times and highlight next boss
+        function updateRespawnTimes() {
+            const rows = document.querySelectorAll('#bossTable tbody tr:not(.fixed-boss-header)');
+            let nextRespawnRow = null;
+            let minTimeRemaining = Infinity;
+            
+            rows.forEach(row => {
+                if (row.classList.contains('fixed-boss-header')) return;
+                
+                const respawnCell = row.querySelector('.respawn-cell');
+                const noteCell = row.querySelector('.note');
+                const deathTime = row.dataset.deathTime;
+                const cooldown = row.dataset.cooldown;
+                
+                const respawnData = calculateRespawn(deathTime, cooldown);
+                
+                // Update respawn cell (only time and date)
+                respawnCell.textContent = `${respawnData.respawnTime} (${respawnData.respawnDate})`;
+                
+                // Get original note from data attribute
+                const originalNote = noteCell.dataset.originalNote || noteCell.textContent.trim();
+                
+                // Update note cell with time remaining
+                noteCell.innerHTML = `${originalNote}<span class="time-remaining">${respawnData.timeRemaining}</span>`;
+                
+                // Check if this is the next boss to respawn
+                if (respawnData.timeRemainingMs > 0 && respawnData.timeRemainingMs < minTimeRemaining) {
+                    minTimeRemaining = respawnData.timeRemainingMs;
+                    nextRespawnRow = row;
+                }
+            });
+            
+            // Remove previous highlights
+            rows.forEach(row => row.classList.remove('next-respawn'));
+            
+            // Highlight next boss to respawn
+            if (nextRespawnRow) {
+                nextRespawnRow.classList.add('next-respawn');
+            }
+            
+            // Update last updated time
+            updateTime();
+        }
+        
+        // Function to make cells editable
+        function makeEditable() {
+            const dateCells = document.querySelectorAll('.date-cell');
+            const timeCells = document.querySelectorAll('.time-cell');
+            
+            [...dateCells, ...timeCells].forEach(cell => {
+                cell.addEventListener('click', function() {
+                    if (this.querySelector('input')) return; // Already being edited
+                    
+                    const row = this.closest('tr');
+                    const deathTime = row.dataset.deathTime;
+                    const currentValue = this.textContent.trim();
+                    const isDateCell = this.classList.contains('date-cell');
+                    
+                    // Create input element
+                    const input = document.createElement('input');
+                    input.type = isDateCell ? 'date' : 'time';
+                    input.className = 'edit-input';
+                    
+                    // Set input value based on deathTime
+                    if (isDateCell) {
+                        const date = new Date(deathTime);
+                        input.value = date.toISOString().split('T')[0];
+                    } else {
+                        const date = new Date(deathTime);
+                        const hours = date.getHours().toString().padStart(2, '0');
+                        const minutes = date.getMinutes().toString().padStart(2, '0');
+                        input.value = `${hours}:${minutes}`;
+                    }
+                    
+                    // Create save button
+                    const saveBtn = document.createElement('button');
+                    saveBtn.textContent = 'Save';
+                    saveBtn.className = 'save-btn';
+                    
+                    // Create cancel button
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.className = 'cancel-btn';
+                    
+                    // Create controls container
+                    const controls = document.createElement('span');
+                    controls.className = 'edit-controls';
+                    controls.appendChild(saveBtn);
+                    controls.appendChild(cancelBtn);
+                    
+                    // Replace cell content with input and buttons
+                    this.innerHTML = '';
+                    this.appendChild(input);
+                    this.appendChild(controls);
+                    
+                    // Focus on input
+                    input.focus();
+                    
+                    // Save button click handler
+                    saveBtn.addEventListener('click', function() {
+                        const dateCell = row.querySelector('.date-cell');
+                        const timeCell = row.querySelector('.time-cell');
+                        
+                        // Get values from inputs
+                        let dateValue, timeValue;
+                        if (isDateCell) {
+                            dateValue = input.value;
+                            const timeInput = timeCell.querySelector('input');
+                            timeValue = timeInput ? timeInput.value : deathTime.split('T')[1];
+                        } else {
+                            timeValue = input.value;
+                            const dateInput = dateCell.querySelector('input');
+                            dateValue = dateInput ? dateInput.value : deathTime.split('T')[0];
+                        }
+                        
+                        // Update data attribute
+                        const newDeathTime = `${dateValue}T${timeValue}`;
+                        row.dataset.deathTime = newDeathTime;
+                        
+                        // Update display values
+                        if (isDateCell) {
+                            dateCell.textContent = dateValue;
+                        } else {
+                            timeCell.textContent = timeValue;
+                        }
+                        
+                        // Save to localStorage and update respawn times
+                        saveToLocalStorage();
+                        updateRespawnTimes();
+                    });
+                    
+                    // Cancel button click handler
+                    cancelBtn.addEventListener('click', function() {
+                        if (isDateCell) {
+                            cell.textContent = currentValue;
+                        } else {
+                            cell.textContent = currentValue;
+                        }
+                    });
+                    
+                    // Enter key to save
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            saveBtn.click();
+                        } else if (e.key === 'Escape') {
+                            cancelBtn.click();
+                        }
+                    });
+                });
+            });
+        }
+        
+        // Function to initialize original notes
+        function initializeOriginalNotes() {
+            const noteCells = document.querySelectorAll('.note');
+            noteCells.forEach(cell => {
+                // Only set original note if it hasn't been set already
+                if (!cell.dataset.originalNote) {
+                    cell.dataset.originalNote = cell.textContent.trim();
+                }
+            });
+        }
+        
+        // Update the last updated time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('updateTime').textContent = now.toLocaleString();
+        }
+        
+        // Initialize the table
+        window.onload = function() {
+            // Initialize original notes
+            initializeOriginalNotes();
+            
+            // Load data from localStorage or initialize with defaults
+            const hasSavedData = loadFromLocalStorage();
+            
+            // Make cells editable
+            makeEditable();
+            
+            // Update respawn times
+            updateRespawnTimes();
+            
+            // Update time every minute
+            setInterval(updateRespawnTimes, 60000);
+            
+            // Show notification if loaded saved data
+            if (hasSavedData) {
+                showNotification('Loaded saved data!');
+            }
+        };
+    </script>
+</body>
+</html>
