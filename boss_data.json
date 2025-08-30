@@ -1,0 +1,103 @@
+{
+    "bossData": {
+        "venatus": {
+            "deathTime": "2025-08-25T23:51",
+            "cooldown": "10"
+        },
+        "viorent": {
+            "deathTime": "2025-08-25T23:58",
+            "cooldown": "10"
+        },
+        "ego": {
+            "deathTime": "2025-08-25T20:23",
+            "cooldown": "21"
+        },
+        "livera": {
+            "deathTime": "2025-08-25T19:11",
+            "cooldown": "24"
+        },
+        "araneo": {
+            "deathTime": "2025-08-25T19:44",
+            "cooldown": "24"
+        },
+        "undomiel": {
+            "deathTime": "2025-08-25T20:17",
+            "cooldown": "24"
+        },
+        "lady-dalia": {
+            "deathTime": "2025-08-25T08:56",
+            "cooldown": "18"
+        },
+        "general-aquleus": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "29"
+        },
+        "amentis": {
+            "deathTime": "2025-08-24T18:57",
+            "cooldown": "29"
+        },
+        "baron-braudmore": {
+            "deathTime": "2025-08-25T16:00",
+            "cooldown": "32"
+        },
+        "wannitas": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "48"
+        },
+        "metus": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "48"
+        },
+        "duplican": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "48"
+        },
+        "shuliar": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "35"
+        },
+        "gareth": {
+            "deathTime": "2025-01-10T00:00",
+            "cooldown": "32"
+        },
+        "titore": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "37"
+        },
+        "larba": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "35"
+        },
+        "catena": {
+            "deathTime": "2025-01-01T00:00",
+            "cooldown": "35"
+        }
+    },
+    "fixedBossData": {
+        "clemantis": {
+            "schedule": "Mon 11:30 \/ Thurs 19:00"
+        },
+        "saphirus": {
+            "schedule": "Sun 17:00 \/ Tues 11:30"
+        },
+        "neutro": {
+            "schedule": "Tues 19:00 \/ Thurs 11:30"
+        },
+        "thymele": {
+            "schedule": "Mon 19:00 \/ Wed 11:30"
+        },
+        "milavy": {
+            "schedule": "Sat 15:00"
+        },
+        "ringor": {
+            "schedule": "Sat 17:00"
+        },
+        "roderick": {
+            "schedule": "Fri 19:00"
+        },
+        "auraq": {
+            "schedule": "Sun 21:00 \/ Wed 21:00"
+        }
+    },
+    "lastUpdated": "2025-08-25T15:58:39.308Z"
+}
