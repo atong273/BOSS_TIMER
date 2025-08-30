@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boss Respawn Tracker</title>
     <style>
+        /* (All existing CSS remains the same) */
         body {
             font-family: Arial, sans-serif;
             margin: 10px;
@@ -626,6 +627,10 @@
                         <label for="fixedBossesSheet">Fixed Bosses Sheet Name:</label>
                         <input type="text" id="fixedBossesSheet" value="Fixed Bosses">
                     </div>
+                    <div class="form-group">
+                        <label for="webAppUrl">Web App URL:</label>
+                        <input type="text" id="webAppUrl" placeholder="Your Google Apps Script Web App URL">
+                    </div>
                     <div class="btn-container">
                         <button class="btn save-settings-btn" id="saveSettings">Save Settings</button>
                         <button class="btn test-connection-btn" id="testConnection">Test Connection</button>
@@ -636,11 +641,19 @@
                             <li>Create a new Google Sheet with two sheets: "Regular Bosses" and "Fixed Bosses"</li>
                             <li>Get your Spreadsheet ID from the URL (e.g., https://docs.google.com/spreadsheets/d/<b>SPREADSHEET_ID</b>/edit)</li>
                             <li>Enable Google Sheets API and get an API Key from Google Cloud Console</li>
+                            <li>Create a Google Apps Script web app for writing data (see below)</li>
                             <li>Share your spreadsheet with "Anyone with the link" can view</li>
                             <li>Fill in the settings above and click "Save Settings"</li>
                             <li>Click "Test Connection" to verify your settings</li>
                         </ol>
-                        <p>Note: Your API Key is stored locally in your browser and never sent to any server.</p>
+                        <p><strong>Creating the Google Apps Script Web App:</strong></p>
+                        <ol>
+                            <li>Go to <a href="https://script.google.com/" target="_blank">script.google.com</a> and create a new project</li>
+                            <li>Replace the code with the provided Apps Script code</li>
+                            <li>Deploy as a web app with "Execute as: Me" and "Who has access: Anyone"</li>
+                            <li>Copy the web app URL and paste it in the settings above</li>
+                        </ol>
+                        <p>Note: Your API Key and Web App URL are stored locally in your browser and never sent to any server.</p>
                     </div>
                 </div>
             </div>
@@ -1055,7 +1068,8 @@
             spreadsheetId: '',
             apiKey: '',
             regularBossesSheet: 'Regular Bosses',
-            fixedBossesSheet: 'Fixed Bosses'
+            fixedBossesSheet: 'Fixed Bosses',
+            webAppUrl: '' // For Google Apps Script web app
         };
         
         // Check if settings are unlocked
@@ -1102,6 +1116,7 @@
                 document.getElementById('apiKey').value = sheetsSettings.apiKey;
                 document.getElementById('regularBossesSheet').value = sheetsSettings.regularBossesSheet;
                 document.getElementById('fixedBossesSheet').value = sheetsSettings.fixedBossesSheet;
+                document.getElementById('webAppUrl').value = sheetsSettings.webAppUrl;
                 
                 // Update sheets link if we have a spreadsheet ID
                 if (sheetsSettings.spreadsheetId) {
@@ -1118,6 +1133,7 @@
             sheetsSettings.apiKey = document.getElementById('apiKey').value;
             sheetsSettings.regularBossesSheet = document.getElementById('regularBossesSheet').value;
             sheetsSettings.fixedBossesSheet = document.getElementById('fixedBossesSheet').value;
+            sheetsSettings.webAppUrl = document.getElementById('webAppUrl').value;
             
             localStorage.setItem('sheetsSettings', JSON.stringify(sheetsSettings));
             
@@ -1164,9 +1180,9 @@
             }
         }
         
-        // Function to save data to Google Sheets
+        // Function to save data to Google Sheets via Apps Script
         async function saveToSheets(bossData, fixedBossData) {
-            if (!sheetsSettings.spreadsheetId || !sheetsSettings.apiKey) {
+            if (!sheetsSettings.spreadsheetId || !sheetsSettings.webAppUrl) {
                 showNotification('Google Sheets settings not configured. Please configure settings first.', 5000);
                 return false;
             }
@@ -1204,19 +1220,17 @@
                     }
                 });
                 
-                // Update regular bosses sheet
-                const regularBossesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetsSettings.spreadsheetId}/values/${encodeURIComponent(sheetsSettings.regularBossesSheet)}?valueInputOption=USER_ENTERED&key=${sheetsSettings.apiKey}`;
-                
-                const regularBossesBody = {
-                    values: regularBossesValues
-                };
-                
-                const regularBossesResponse = await fetch(regularBossesUrl, {
-                    method: 'PUT',
+                // Update regular bosses sheet via web app
+                const regularBossesResponse = await fetch(sheetsSettings.webAppUrl, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(regularBossesBody)
+                    body: JSON.stringify({
+                        spreadsheetId: sheetsSettings.spreadsheetId,
+                        sheetName: sheetsSettings.regularBossesSheet,
+                        values: regularBossesValues
+                    })
                 });
                 
                 if (!regularBossesResponse.ok) {
@@ -1225,19 +1239,17 @@
                     return false;
                 }
                 
-                // Update fixed bosses sheet
-                const fixedBossesUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetsSettings.spreadsheetId}/values/${encodeURIComponent(sheetsSettings.fixedBossesSheet)}?valueInputOption=USER_ENTERED&key=${sheetsSettings.apiKey}`;
-                
-                const fixedBossesBody = {
-                    values: fixedBossesValues
-                };
-                
-                const fixedBossesResponse = await fetch(fixedBossesUrl, {
-                    method: 'PUT',
+                // Update fixed bosses sheet via web app
+                const fixedBossesResponse = await fetch(sheetsSettings.webAppUrl, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(fixedBossesBody)
+                    body: JSON.stringify({
+                        spreadsheetId: sheetsSettings.spreadsheetId,
+                        sheetName: sheetsSettings.fixedBossesSheet,
+                        values: fixedBossesValues
+                    })
                 });
                 
                 if (!fixedBossesResponse.ok) {
