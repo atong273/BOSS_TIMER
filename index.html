@@ -7,15 +7,16 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 10px;
             background-color: #f5f5f5;
+            padding: 0;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
@@ -23,30 +24,43 @@
         h1 {
             color: #333;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 24px;
         }
         
         h2 {
             color: #333;
-            margin-top: 30px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             margin-bottom: 15px;
+            border-radius: 5px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 0;
+            min-width: 600px;
         }
         
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            font-size: 14px;
         }
         
         th {
             background-color: #f2f2f2;
             font-weight: bold;
+            position: sticky;
+            top: 0;
         }
         
         .fixed-boss-header {
@@ -54,15 +68,30 @@
             font-weight: bold;
         }
         
-        .next-respawn {
-            background-color: #ff9800;
-            color: white;
+        .next-regular-respawn {
+            background-color: #fff9c4; /* Light yellow */
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .next-fixed-respawn {
+            background-color: #fff9c4; /* Light yellow */
+            color: #333;
             font-weight: bold;
         }
         
         .time-remaining {
-            font-weight: bold;
+            color: black;
+            font-weight: normal;
+        }
+        
+        .time-urgent {
             color: #d32f2f;
+            font-weight: normal;
+        }
+        
+        .time-bold {
+            font-weight: bold;
         }
         
         .last-updated {
@@ -76,10 +105,11 @@
             background-color: #2196F3;
             color: white;
             border: none;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 3px;
             cursor: pointer;
             font-size: 12px;
+            white-space: nowrap;
         }
         
         .edit-btn:hover {
@@ -88,21 +118,23 @@
         
         .edit-input {
             width: 100%;
-            padding: 4px;
+            padding: 6px;
             border: 1px solid #4CAF50;
             border-radius: 3px;
             font-size: 14px;
+            box-sizing: border-box;
         }
         
         .save-btn {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 3px;
             cursor: pointer;
             margin-left: 5px;
             font-size: 12px;
+            white-space: nowrap;
         }
         
         .save-btn:hover {
@@ -113,15 +145,31 @@
             background-color: #f44336;
             color: white;
             border: none;
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 3px;
             cursor: pointer;
             margin-left: 5px;
             font-size: 12px;
+            white-space: nowrap;
         }
         
         .cancel-btn:hover {
             background-color: #d32f2f;
+        }
+        
+        .set-time-btn {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .set-time-btn:hover {
+            background-color: #e68900;
         }
         
         .edit-controls {
@@ -133,8 +181,9 @@
             background-color: #e3f2fd;
             padding: 10px;
             border-radius: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #2196F3;
+            font-size: 14px;
         }
         
         .notification {
@@ -148,216 +197,486 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             display: none;
             z-index: 1000;
+            max-width: 80%;
+            font-size: 14px;
+        }
+        
+        .storage-status {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .storage-connected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .storage-error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .update-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+        
+        .polling-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                margin: 5px;
+            }
+            
+            .container {
+                padding: 10px;
+                border-radius: 5px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            
+            h2 {
+                font-size: 18px;
+                margin-top: 15px;
+                margin-bottom: 8px;
+            }
+            
+            .instructions {
+                font-size: 12px;
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+                font-size: 12px;
+            }
+            
+            .edit-btn, .save-btn, .cancel-btn, .set-time-btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+            
+            .edit-input {
+                padding: 4px;
+                font-size: 12px;
+            }
+            
+            .notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            .polling-status {
+                bottom: 5px;
+                right: 5px;
+                font-size: 10px;
+            }
+        }
+        
+        /* For very small screens */
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            .instructions {
+                font-size: 11px;
+                padding: 6px;
+            }
+            
+            th, td {
+                padding: 4px 2px;
+                font-size: 11px;
+            }
+            
+            .edit-btn, .save-btn, .cancel-btn, .set-time-btn {
+                padding: 3px 5px;
+                font-size: 10px;
+            }
+            
+            .edit-input {
+                padding: 3px;
+                font-size: 11px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Boss Respawn Tracker</h1>
+        <h1>Boss Respawn Tracker <span id="liveIndicator" class="update-indicator" style="display: none;"></span></h1>
         
-        <div class="instructions">
-            <strong>Instructions:</strong> Click the Edit button in each row to modify the date, time, and cooldown. Use the date and time pickers to select values, then click Save to confirm changes. The respawn times will automatically update and the next boss to respawn will be highlighted in orange.
+        <div id="storageStatus" class="storage-status">
+            Connecting to data storage...
         </div>
         
-        <table id="bossTable">
-            <thead>
-                <tr>
-                    <th>Map</th>
-                    <th>Map level</th>
-                    <th>Name</th>
-                    <th>Last death</th>
-                    <th>Cooldown</th>
-                    <th>Respawn</th>
-                    <th>Time Left</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Regular Bosses -->
-                <tr data-boss-id="venatus" data-cooldown="10" data-death-time="2023-05-15T10:00">
-                    <td>Corrupted Basin</td>
-                    <td>20</td>
-                    <td>Venatus</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">10:00</td>
-                    <td class="cooldown-cell">10h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('venatus')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="viorent" data-cooldown="10" data-death-time="2023-05-15T10:00">
-                    <td>Cresent Lake</td>
-                    <td>37</td>
-                    <td>Viorent</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">10:00</td>
-                    <td class="cooldown-cell">10h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('viorent')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="ego" data-cooldown="21" data-death-time="2023-05-15T21:00">
-                    <td>Ulan Canyon</td>
-                    <td>50</td>
-                    <td>Ego</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">21:00</td>
-                    <td class="cooldown-cell">21h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('ego')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="livera" data-cooldown="24" data-death-time="2023-05-15T00:00">
-                    <td>Protector's Ruins</td>
-                    <td>55</td>
-                    <td>Livera</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">00:00</td>
-                    <td class="cooldown-cell">24h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('livera')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="araneo" data-cooldown="24" data-death-time="2023-05-15T00:00">
-                    <td>Tyriosa 1F</td>
-                    <td>65</td>
-                    <td>Araneo</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">00:00</td>
-                    <td class="cooldown-cell">24h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('araneo')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="undomiel" data-cooldown="24" data-death-time="2023-05-15T00:00">
-                    <td>Secret Lab</td>
-                    <td>32</td>
-                    <td>Undomiel</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">00:00</td>
-                    <td class="cooldown-cell">24h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('undomiel')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="lady-dalia" data-cooldown="18" data-death-time="2023-05-15T18:00">
-                    <td>Twilight Hill</td>
-                    <td>43</td>
-                    <td>Lady Dalia</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">18:00</td>
-                    <td class="cooldown-cell">18h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('lady-dalia')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="general-aquleus" data-cooldown="29" data-death-time="2023-05-15T05:00">
-                    <td>Tyriosa 2F</td>
-                    <td>74</td>
-                    <td>General Aquleus</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">05:00</td>
-                    <td class="cooldown-cell">29h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('general-aquleus')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="amentis" data-cooldown="29" data-death-time="2023-05-15T05:00">
-                    <td>Land of Glory</td>
-                    <td>70</td>
-                    <td>Amentis</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">05:00</td>
-                    <td class="cooldown-cell">29h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('amentis')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="baron-braudmore" data-cooldown="32" data-death-time="2023-05-15T05:00">
-                    <td>Battlefield of Templar</td>
-                    <td>76</td>
-                    <td>Baron Braudmore</td>
-                    <td class="date-cell">2023-05-15</td>
-                    <td class="time-cell">05:00</td>
-                    <td class="cooldown-cell">32h</td>
-                    <td class="respawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editRow('baron-braudmore')">Edit</button></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instructions">
+            <strong>Instructions:</strong> Click the Edit button in each row to modify the date, time, and cooldown. Use the date and time pickers to select values, then click Save to confirm changes. For regular bosses, you can click Set Time to set the death time to the current time. The respawn times will automatically update and the next boss to respawn will be highlighted in light yellow. Time remaining text turns red and bold when a boss has respawned or is the next one to spawn. All data is saved to the server and updates in real-time.
+        </div>
+        
+        <div class="table-container">
+            <table id="bossTable">
+                <thead>
+                    <tr>
+                        <th>Map</th>
+                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Spawn Time</th>
+                        <th>Next Spawn</th>
+                        <th>Time Left</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Regular Bosses -->
+                    <tr data-boss-id="venatus" data-cooldown="10" data-death-time="2023-05-15T10:00">
+                        <td>Corrupted Basin</td>
+                        <td>60</td>
+                        <td>Venatus</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">10:00</td>
+                        <td class="cooldown-cell">10h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('venatus')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="viorent" data-cooldown="10" data-death-time="2023-05-15T10:00">
+                        <td>Cresent Lake</td>
+                        <td>65</td>
+                        <td>Viorent</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">10:00</td>
+                        <td class="cooldown-cell">10h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('viorent')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="ego" data-cooldown="21" data-death-time="2023-05-15T21:00">
+                        <td>Ulan Canyon</td>
+                        <td>70</td>
+                        <td>Ego</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">21:00</td>
+                        <td class="cooldown-cell">21h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('ego')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="livera" data-cooldown="24" data-death-time="2023-05-15T00:00">
+                        <td>Protector's Ruins</td>
+                        <td>75</td>
+                        <td>Livera</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">24h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('livera')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="araneo" data-cooldown="24" data-death-time="2023-05-15T00:00">
+                        <td>Tyriosa 1F</td>
+                        <td>75</td>
+                        <td>Araneo</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">24h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('araneo')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="undomiel" data-cooldown="24" data-death-time="2023-05-15T00:00">
+                        <td>Secret Lab</td>
+                        <td>80</td>
+                        <td>Undomiel</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">24h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('undomiel')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="lady-dalia" data-cooldown="18" data-death-time="2023-05-15T18:00">
+                        <td>Twilight Hill</td>
+                        <td>85</td>
+                        <td>Lady Dalia</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">18:00</td>
+                        <td class="cooldown-cell">18h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('lady-dalia')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="general-aquleus" data-cooldown="29" data-death-time="2023-05-15T05:00">
+                        <td>Tyriosa 2F</td>
+                        <td>85</td>
+                        <td>General Aquleus</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">05:00</td>
+                        <td class="cooldown-cell">29h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('general-aquleus')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="amentis" data-cooldown="29" data-death-time="2023-05-15T05:00">
+                        <td>Land of Glory</td>
+                        <td>88</td>
+                        <td>Amentis</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">05:00</td>
+                        <td class="cooldown-cell">29h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('amentis')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="baron-braudmore" data-cooldown="32" data-death-time="2023-05-15T05:00">
+                        <td>Battlefield of Templar</td>
+                        <td>88</td>
+                        <td>Baron Braudmore</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">05:00</td>
+                        <td class="cooldown-cell">32h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('baron-braudmore')">Edit</button></td>
+                    </tr>
+                    <!-- New Regular Bosses -->
+                    <tr data-boss-id="wannitas" data-cooldown="48" data-death-time="2023-05-15T00:00">
+                        <td>Plateau of Revolution</td>
+                        <td>93</td>
+                        <td>Wannitas</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">48h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('wannitas')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="metus" data-cooldown="48" data-death-time="2023-05-15T00:00">
+                        <td>Plateau of Revolution</td>
+                        <td>93</td>
+                        <td>Metus</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">48h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('metus')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="duplican" data-cooldown="48" data-death-time="2023-05-15T00:00">
+                        <td>Plateau of Revolution</td>
+                        <td>93</td>
+                        <td>Duplican</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">48h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('duplican')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="shuliar" data-cooldown="35" data-death-time="2023-05-15T00:00">
+                        <td>Ruins of the War</td>
+                        <td>95</td>
+                        <td>Shuliar</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">35h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('shuliar')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="gareth" data-cooldown="32" data-death-time="2023-05-15T00:00">
+                        <td>Deadman 1</td>
+                        <td>98</td>
+                        <td>Gareth</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">32h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('gareth')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="titore" data-cooldown="37" data-death-time="2023-05-15T00:00">
+                        <td>Deadman 2</td>
+                        <td>98</td>
+                        <td>Titore</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">37h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('titore')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="larba" data-cooldown="35" data-death-time="2023-05-15T00:00">
+                        <td>Ruins of the War</td>
+                        <td>98</td>
+                        <td>Larba</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">35h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('larba')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="catena" data-cooldown="35" data-death-time="2023-05-15T00:00">
+                        <td>Deadman 3</td>
+                        <td>100</td>
+                        <td>Catena</td>
+                        <td class="date-cell">2023-05-15</td>
+                        <td class="time-cell">00:00</td>
+                        <td class="cooldown-cell">35h</td>
+                        <td class="respawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editRow('catena')">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
         <h2>Fixed Bosses</h2>
-        <table id="fixedBossTable">
-            <thead>
-                <tr>
-                    <th>Map</th>
-                    <th>Map level</th>
-                    <th>Name</th>
-                    <th>Spawn Schedule</th>
-                    <th>Next Spawn</th>
-                    <th>Time Left</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Fixed Bosses -->
-                <tr data-boss-id="clemantis" data-fixed-schedule="Mon 11:30 / Thurs 19:00">
-                    <td>Corrupted Basin</td>
-                    <td>20</td>
-                    <td>Clemantis</td>
-                    <td class="schedule-cell">Mon 11:30 / Thurs 19:00</td>
-                    <td class="next-spawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editFixedBoss('clemantis')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="saphirus" data-fixed-schedule="Sun 17:00 / Tues 11:30">
-                    <td>Cresent Lake</td>
-                    <td>37</td>
-                    <td>Saphirus</td>
-                    <td class="schedule-cell">Sun 17:00 / Tues 11:30</td>
-                    <td class="next-spawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editFixedBoss('saphirus')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="neutro" data-fixed-schedule="Tues 19:00 / Thurs 11:30">
-                    <td>Desert Screaming</td>
-                    <td>62</td>
-                    <td>Neutro</td>
-                    <td class="schedule-cell">Tues 19:00 / Thurs 11:30</td>
-                    <td class="next-spawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editFixedBoss('neutro')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="thymele" data-fixed-schedule="Mon 19:00 / Wed 11:30">
-                    <td>Twilight Hill</td>
-                    <td>43</td>
-                    <td>Thymele</td>
-                    <td class="schedule-cell">Mon 19:00 / Wed 11:30</td>
-                    <td class="next-spawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editFixedBoss('thymele')">Edit</button></td>
-                </tr>
-                <tr data-boss-id="milavy" data-fixed-schedule="Sat 15:00">
-                    <td>Tyriosa 3F</td>
-                    <td>88</td>
-                    <td>Milavy</td>
-                    <td class="schedule-cell">Sat 15:00</td>
-                    <td class="next-spawn-cell"></td>
-                    <td class="time-left-cell"></td>
-                    <td><button class="edit-btn" onclick="editFixedBoss('milavy')">Edit</button></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table id="fixedBossTable">
+                <thead>
+                    <tr>
+                        <th>Map</th>
+                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Spawn Schedule</th>
+                        <th>Next Spawn</th>
+                        <th>Time Left</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Fixed Bosses -->
+                    <tr data-boss-id="clemantis" data-fixed-schedule="Mon 11:30 / Thurs 19:00">
+                        <td>Corrupted Basin</td>
+                        <td>70</td>
+                        <td>Clemantis</td>
+                        <td class="schedule-cell">Mon 11:30 / Thurs 19:00</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('clemantis')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="saphirus" data-fixed-schedule="Sun 17:00 / Tues 11:30">
+                        <td>Cresent Lake</td>
+                        <td>80</td>
+                        <td>Saphirus</td>
+                        <td class="schedule-cell">Sun 17:00 / Tues 11:30</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('saphirus')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="neutro" data-fixed-schedule="Tues 19:00 / Thurs 11:30">
+                        <td>Desert Screaming</td>
+                        <td>80</td>
+                        <td>Neutro</td>
+                        <td class="schedule-cell">Tues 19:00 / Thurs 11:30</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('neutro')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="thymele" data-fixed-schedule="Mon 19:00 / Wed 11:30">
+                        <td>Twilight Hill</td>
+                        <td>85</td>
+                        <td>Thymele</td>
+                        <td class="schedule-cell">Mon 19:00 / Wed 11:30</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('thymele')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="milavy" data-fixed-schedule="Sat 15:00">
+                        <td>Tyriosa 3F</td>
+                        <td>90</td>
+                        <td>Milavy</td>
+                        <td class="schedule-cell">Sat 15:00</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('milavy')">Edit</button></td>
+                    </tr>
+                    <!-- New Fixed Bosses -->
+                    <tr data-boss-id="ringor" data-fixed-schedule="Sat 17:00">
+                        <td>Ruins of the war</td>
+                        <td>95</td>
+                        <td>Ringor</td>
+                        <td class="schedule-cell">Sat 17:00</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('ringor')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="roderick" data-fixed-schedule="Fri 19:00">
+                        <td>Garbana 1F</td>
+                        <td>95</td>
+                        <td>Roderick</td>
+                        <td class="schedule-cell">Fri 19:00</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('roderick')">Edit</button></td>
+                    </tr>
+                    <tr data-boss-id="auraq" data-fixed-schedule="Sun 21:00 / Wed 21:00">
+                        <td>Garbana 2F</td>
+                        <td>100</td>
+                        <td>Auraq</td>
+                        <td class="schedule-cell">Sun 21:00 / Wed 21:00</td>
+                        <td class="next-spawn-cell"></td>
+                        <td class="time-left-cell"></td>
+                        <td><button class="edit-btn" onclick="editFixedBoss('auraq')">Edit</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
         <div class="last-updated">
             Last updated: <span id="updateTime"></span>
         </div>
     </div>
-
     <div class="notification" id="notification">Data saved successfully!</div>
-    <script src="dataHandler.js"></script>
-    <script>   
+    <div class="polling-status" id="pollingStatus">Checking for updates...</div>
+    <script>
         // Default death times for each boss
         const defaultDeathTimes = {
             'venatus': '2023-05-15T10:00',
@@ -369,7 +688,16 @@
             'lady-dalia': '2023-05-15T18:00',
             'general-aquleus': '2023-05-15T05:00',
             'amentis': '2023-05-15T05:00',
-            'baron-braudmore': '2023-05-15T05:00'
+            'baron-braudmore': '2023-05-15T05:00',
+            // New regular bosses
+            'wannitas': '2023-05-15T00:00',
+            'metus': '2023-05-15T00:00',
+            'duplican': '2023-05-15T00:00',
+            'shuliar': '2023-05-15T00:00',
+            'gareth': '2023-05-15T00:00',
+            'titore': '2023-05-15T00:00',
+            'larba': '2023-05-15T00:00',
+            'catena': '2023-05-15T00:00'
         };
         
         // Default cooldowns for each boss
@@ -383,7 +711,16 @@
             'lady-dalia': '18',
             'general-aquleus': '29',
             'amentis': '29',
-            'baron-braudmore': '32'
+            'baron-braudmore': '32',
+            // New regular bosses
+            'wannitas': '48',
+            'metus': '48',
+            'duplican': '48',
+            'shuliar': '35',
+            'gareth': '32',
+            'titore': '37',
+            'larba': '35',
+            'catena': '35'
         };
         
         // Fixed schedules for fixed bosses
@@ -392,11 +729,163 @@
             'saphirus': 'Sun 17:00 / Tues 11:30',
             'neutro': 'Tues 19:00 / Thurs 11:30',
             'thymele': 'Mon 19:00 / Wed 11:30',
-            'milavy': 'Sat 15:00'
+            'milavy': 'Sat 15:00',
+            // New fixed bosses
+            'ringor': 'Sat 17:00',
+            'roderick': 'Fri 19:00',
+            'auraq': 'Sun 21:00 / Wed 21:00'
         };
         
-        // Function to save data to localStorage
-        function saveToLocalStorage() {
+        // Global variables
+        let lastUpdateTimestamp = null;
+        let pollingInterval = 5000; // Start with 5 seconds
+        let minPollingInterval = 1000; // Minimum 1 second
+        let maxPollingInterval = 30000; // Maximum 30 seconds
+        let pollingTimer = null;
+        let isPageVisible = true;
+        let consecutiveNoUpdateCount = 0;
+        let lastActivityTime = Date.now();
+        
+        // Function to save data to JSON file
+        async function saveToJsonFile(bossData, fixedBossData) {
+            const data = {
+                bossData: bossData,
+                fixedBossData: fixedBossData,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch('save_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                return result.success;
+            } catch (error) {
+                console.error('Error saving to JSON file:', error);
+                return false;
+            }
+        }
+        
+        // Function to load data from JSON file
+        async function loadFromJsonFile() {
+            try {
+                const response = await fetch('load_data.php');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error loading from JSON file:', error);
+                return null;
+            }
+        }
+        
+        // Function to check for updates
+        async function checkForUpdates() {
+            try {
+                const data = await loadFromJsonFile();
+                
+                if (!data || !data.lastUpdated) {
+                    return false;
+                }
+                
+                // If this is the first time loading, set the timestamp and return
+                if (!lastUpdateTimestamp) {
+                    lastUpdateTimestamp = data.lastUpdated;
+                    return false;
+                }
+                
+                // Check if the data has been updated since our last check
+                if (data.lastUpdated !== lastUpdateTimestamp) {
+                    lastUpdateTimestamp = data.lastUpdated;
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error checking for updates:', error);
+                return false;
+            }
+        }
+        
+        // Function to update polling interval based on activity
+        function updatePollingInterval(hasUpdates) {
+            if (hasUpdates) {
+                // Reset counter on update
+                consecutiveNoUpdateCount = 0;
+                
+                // If we got an update, speed up polling temporarily
+                if (pollingInterval > minPollingInterval) {
+                    pollingInterval = Math.max(minPollingInterval, pollingInterval / 2);
+                    restartPolling();
+                }
+            } else {
+                // No update, gradually slow down polling
+                consecutiveNoUpdateCount++;
+                
+                if (consecutiveNoUpdateCount > 2 && pollingInterval < maxPollingInterval) {
+                    pollingInterval = Math.min(maxPollingInterval, pollingInterval * 1.5);
+                    restartPolling();
+                }
+            }
+            
+            // Update polling status display
+            updatePollingStatus();
+        }
+        
+        // Function to restart polling with new interval
+        function restartPolling() {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+            }
+            
+            if (isPageVisible) {
+                pollingTimer = setInterval(refreshDataIfUpdated, pollingInterval);
+            }
+        }
+        
+        // Function to update polling status display
+        function updatePollingStatus() {
+            const statusElement = document.getElementById('pollingStatus');
+            if (statusElement) {
+                let intervalText = '';
+                if (pollingInterval < 2000) {
+                    intervalText = 'Checking frequently';
+                } else if (pollingInterval < 10000) {
+                    intervalText = 'Checking every ' + (pollingInterval / 1000).toFixed(0) + 's';
+                } else {
+                    intervalText = 'Checking every ' + (pollingInterval / 1000).toFixed(0) + 's';
+                }
+                statusElement.textContent = intervalText;
+            }
+        }
+        
+        // Function to update storage status indicator
+        function updateStorageStatus(connected, message) {
+            const statusElement = document.getElementById('storageStatus');
+            if (connected) {
+                statusElement.textContent = message || 'Connected to file storage';
+                statusElement.className = 'storage-status storage-connected';
+            } else {
+                statusElement.textContent = message || 'File storage unavailable - using defaults';
+                statusElement.className = 'storage-status storage-error';
+            }
+        }
+        
+        // Function to save data to file
+        async function saveToFile() {
             // Save regular boss data
             const rows = document.querySelectorAll('#bossTable tbody tr');
             const bossData = {};
@@ -429,101 +918,125 @@
                 }
             });
             
-            localStorage.setItem('bossRespawnData', JSON.stringify(bossData));
-            localStorage.setItem('fixedBossRespawnData', JSON.stringify(fixedBossData));
-            showNotification('Data saved successfully!');
+            try {
+                const success = await saveToJsonFile(bossData, fixedBossData);
+                if (success) {
+                    showNotification('Data saved to file successfully!');
+                    updateStorageStatus(true, 'Data saved to file');
+                    
+                    // Update the last update timestamp
+                    const data = await loadFromJsonFile();
+                    if (data && data.lastUpdated) {
+                        lastUpdateTimestamp = data.lastUpdated;
+                    }
+                    
+                    // Update activity time
+                    lastActivityTime = Date.now();
+                    
+                    // Speed up polling after activity
+                    if (pollingInterval > minPollingInterval) {
+                        pollingInterval = minPollingInterval;
+                        restartPolling();
+                    }
+                    
+                    return true;
+                } else {
+                    showNotification('Failed to save to file. Please try again later.');
+                    updateStorageStatus(false, 'Failed to save to file');
+                    return false;
+                }
+            } catch (error) {
+                showNotification('Failed to save to file. Please try again later.');
+                updateStorageStatus(false, 'Failed to save to file');
+                return false;
+            }
         }
         
-        // Function to load data from localStorage
-        function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('bossRespawnData');
-            const hasSavedData = savedData !== null;
-            
-            if (savedData) {
-                const bossData = JSON.parse(savedData);
+        // Function to load data from file
+        async function loadFromFile() {
+            try {
+                const data = await loadFromJsonFile();
                 
-                Object.keys(bossData).forEach(bossId => {
-                    const row = document.querySelector(`#bossTable tr[data-boss-id="${bossId}"]`);
-                    if (row) {
-                        const data = bossData[bossId];
-                        row.dataset.deathTime = data.deathTime;
-                        row.dataset.cooldown = data.cooldown;
-                        
-                        // Update display values
-                        const deathTime = new Date(data.deathTime);
-                        const dateCell = row.querySelector('.date-cell');
-                        const timeCell = row.querySelector('.time-cell');
-                        const cooldownCell = row.querySelector('.cooldown-cell');
-                        
-                        if (dateCell) {
-                            dateCell.textContent = deathTime.toISOString().split('T')[0];
-                        }
-                        
-                        if (timeCell) {
-                            const hours = deathTime.getHours().toString().padStart(2, '0');
-                            const minutes = deathTime.getMinutes().toString().padStart(2, '0');
-                            timeCell.textContent = `${hours}:${minutes}`;
-                        }
-                        
-                        if (cooldownCell) {
-                            cooldownCell.textContent = `${data.cooldown}h`;
-                        }
-                    }
-                });
-            } else {
-                // Initialize with default times
-                const rows = document.querySelectorAll('#bossTable tbody tr');
-                rows.forEach(row => {
-                    const bossId = row.dataset.bossId;
-                    if (bossId && defaultDeathTimes[bossId] && defaultCooldowns[bossId]) {
-                        row.dataset.deathTime = defaultDeathTimes[bossId];
-                        row.dataset.cooldown = defaultCooldowns[bossId];
-                    }
-                });
-            }
-            
-            // Load fixed boss data
-            const fixedSavedData = localStorage.getItem('fixedBossRespawnData');
-            
-            if (fixedSavedData) {
-                const fixedBossData = JSON.parse(fixedSavedData);
+                if (!data) {
+                    updateStorageStatus(false, 'Failed to load from file - using defaults');
+                    return false;
+                }
                 
-                Object.keys(fixedBossData).forEach(bossId => {
-                    const row = document.querySelector(`#fixedBossTable tr[data-boss-id="${bossId}"]`);
-                    if (row) {
-                        const data = fixedBossData[bossId];
-                        row.dataset.fixedSchedule = data.schedule;
-                        
-                        // Update display values
-                        const scheduleCell = row.querySelector('.schedule-cell');
-                        if (scheduleCell) {
-                            scheduleCell.textContent = data.schedule;
+                // Update the last update timestamp
+                if (data.lastUpdated) {
+                    lastUpdateTimestamp = data.lastUpdated;
+                }
+                
+                // Process regular boss data
+                if (data.bossData) {
+                    Object.keys(data.bossData).forEach(bossId => {
+                        const row = document.querySelector(`#bossTable tr[data-boss-id="${bossId}"]`);
+                        if (row) {
+                            const bossInfo = data.bossData[bossId];
+                            row.dataset.deathTime = bossInfo.deathTime;
+                            row.dataset.cooldown = bossInfo.cooldown;
+                            
+                            // Update display values
+                            const deathTime = new Date(bossInfo.deathTime);
+                            const dateCell = row.querySelector('.date-cell');
+                            const timeCell = row.querySelector('.time-cell');
+                            const cooldownCell = row.querySelector('.cooldown-cell');
+                            
+                            if (dateCell) {
+                                // Format date as YYYY-MM-DD in local time
+                                const year = deathTime.getFullYear();
+                                const month = String(deathTime.getMonth() + 1).padStart(2, '0');
+                                const day = String(deathTime.getDate()).padStart(2, '0');
+                                dateCell.textContent = `${year}-${month}-${day}`;
+                            }
+                            
+                            if (timeCell) {
+                                const hours = String(deathTime.getHours()).padStart(2, '0');
+                                const minutes = String(deathTime.getMinutes()).padStart(2, '0');
+                                timeCell.textContent = `${hours}:${minutes}`;
+                            }
+                            
+                            if (cooldownCell) {
+                                cooldownCell.textContent = `${bossInfo.cooldown}h`;
+                            }
                         }
-                    }
-                });
-            } else {
-                // Initialize with default schedules
-                const fixedRows = document.querySelectorAll('#fixedBossTable tbody tr');
-                fixedRows.forEach(row => {
-                    const bossId = row.dataset.bossId;
-                    if (bossId && fixedSchedules[bossId]) {
-                        row.dataset.fixedSchedule = fixedSchedules[bossId];
-                    }
-                });
+                    });
+                }
+                
+                // Process fixed boss data
+                if (data.fixedBossData) {
+                    Object.keys(data.fixedBossData).forEach(bossId => {
+                        const row = document.querySelector(`#fixedBossTable tr[data-boss-id="${bossId}"]`);
+                        if (row) {
+                            const bossInfo = data.fixedBossData[bossId];
+                            row.dataset.fixedSchedule = bossInfo.schedule;
+                            
+                            // Update display values
+                            const scheduleCell = row.querySelector('.schedule-cell');
+                            if (scheduleCell) {
+                                scheduleCell.textContent = bossInfo.schedule;
+                            }
+                        }
+                    });
+                }
+                
+                updateStorageStatus(true, 'Data loaded from file');
+                return true;
+            } catch (error) {
+                updateStorageStatus(false, 'Failed to load from file - using defaults');
+                return false;
             }
-            
-            return hasSavedData;
         }
         
         // Function to show notification
-        function showNotification(message) {
+        function showNotification(message, duration = 3000) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
             
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 3000);
+            }, duration);
         }
         
         // Function to calculate respawn time and time remaining
@@ -560,7 +1073,7 @@
             if (timeRemainingMs > 0) {
                 timeRemainingStr = `${timeRemainingHours}h ${timeRemainingMinutes}m left`;
             } else {
-                timeRemainingStr = 'Ready to respawn';
+                timeRemainingStr = 'Respawned';
             }
             
             return {
@@ -650,7 +1163,7 @@
             if (nextSpawn.timeRemainingMs > 0) {
                 timeRemainingStr = `${timeRemainingHours}h ${timeRemainingMinutes}m left`;
             } else {
-                timeRemainingStr = 'Ready to respawn';
+                timeRemainingStr = 'Respawned';
             }
             
             return {
@@ -713,16 +1226,60 @@
                 }
             });
             
-            // Remove previous highlights
-            rows.forEach(row => row.classList.remove('next-respawn'));
-            fixedRows.forEach(row => row.classList.remove('next-respawn'));
+            // Remove previous highlights for both regular and fixed bosses
+            rows.forEach(row => {
+                row.classList.remove('next-regular-respawn');
+            });
+            fixedRows.forEach(row => {
+                row.classList.remove('next-fixed-respawn');
+            });
             
-            // Highlight next boss to respawn (regular or fixed)
-            if (nextRespawnRow && (minTimeRemaining <= minFixedTimeRemaining || !nextFixedBossRow)) {
-                nextRespawnRow.classList.add('next-respawn');
-            } else if (nextFixedBossRow) {
-                nextFixedBossRow.classList.add('next-respawn');
+            // Highlight next regular boss to respawn
+            if (nextRespawnRow) {
+                nextRespawnRow.classList.add('next-regular-respawn');
             }
+            
+            // Highlight next fixed boss to respawn
+            if (nextFixedBossRow) {
+                nextFixedBossRow.classList.add('next-fixed-respawn');
+            }
+            
+            // Update time remaining text color and font weight
+            // First, reset all time-remaining elements to default
+            document.querySelectorAll('.time-remaining').forEach(element => {
+                element.classList.remove('time-urgent');
+                element.classList.remove('time-bold');
+            });
+            
+            // Then, make time red and bold for bosses that have respawned or are next to spawn
+            rows.forEach(row => {
+                const timeLeftCell = row.querySelector('.time-left-cell');
+                const timeRemainingSpan = timeLeftCell.querySelector('.time-remaining');
+                const deathTime = row.dataset.deathTime;
+                const cooldown = row.dataset.cooldown;
+                
+                const respawnData = calculateRespawn(deathTime, cooldown);
+                
+                // Make red and bold if boss has respawned or is the next regular boss to respawn
+                if (respawnData.timeRemainingMs <= 0 || row === nextRespawnRow) {
+                    timeRemainingSpan.classList.add('time-urgent');
+                    timeRemainingSpan.classList.add('time-bold');
+                }
+            });
+            
+            fixedRows.forEach(row => {
+                const timeLeftCell = row.querySelector('.time-left-cell');
+                const timeRemainingSpan = timeLeftCell.querySelector('.time-remaining');
+                const schedule = row.dataset.fixedSchedule;
+                
+                const spawnData = calculateNextFixedSpawn(schedule);
+                
+                // Make red and bold if boss has spawned or is the next fixed boss to spawn
+                if (spawnData.timeRemainingMs <= 0 || row === nextFixedBossRow) {
+                    timeRemainingSpan.classList.add('time-urgent');
+                    timeRemainingSpan.classList.add('time-bold');
+                }
+            });
             
             // Update last updated time
             updateTime();
@@ -745,9 +1302,15 @@
             
             // Parse death time
             const deathDateTime = new Date(deathTime);
-            const dateValue = deathDateTime.toISOString().split('T')[0];
-            const hours = deathDateTime.getHours().toString().padStart(2, '0');
-            const minutes = deathDateTime.getMinutes().toString().padStart(2, '0');
+            
+            // Format date as YYYY-MM-DD for the input
+            const year = deathDateTime.getFullYear();
+            const month = String(deathDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(deathDateTime.getDate()).padStart(2, '0');
+            const dateValue = `${year}-${month}-${day}`;
+            
+            const hours = String(deathDateTime.getHours()).padStart(2, '0');
+            const minutes = String(deathDateTime.getMinutes()).padStart(2, '0');
             const timeValue = `${hours}:${minutes}`;
             
             // Create date input
@@ -769,6 +1332,11 @@
             cooldownInput.min = '1';
             cooldownInput.max = '168';
             cooldownInput.value = cooldown;
+            
+            // Create set time button
+            const setTimeBtn = document.createElement('button');
+            setTimeBtn.textContent = 'Set Time';
+            setTimeBtn.className = 'set-time-btn';
             
             // Create save button
             const saveBtn = document.createElement('button');
@@ -797,14 +1365,31 @@
             cooldownCell.appendChild(cooldownInput);
             
             actionCell.innerHTML = '';
+            actionCell.appendChild(setTimeBtn);
             actionCell.appendChild(saveBtn);
             actionCell.appendChild(cancelBtn);
             
             // Focus on date input
             dateInput.focus();
             
+            // Set time function
+            const setTimeFunction = () => {
+                const now = new Date();
+                
+                // Format date as YYYY-MM-DD for the input
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
+                
+                // Format time as HH:MM for the input
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                timeInput.value = `${hours}:${minutes}`;
+            };
+            
             // Save function
-            const saveChanges = () => {
+            const saveChanges = async () => {
                 const newDateValue = dateInput.value;
                 const newTimeValue = timeInput.value;
                 const newCooldownValue = cooldownInput.value;
@@ -833,9 +1418,11 @@
                 // Restore action cell
                 actionCell.innerHTML = originalActionContent;
                 
-                // Save to localStorage and update respawn times
-                saveToLocalStorage();
-                updateRespawnTimes();
+                // Save to file and update respawn times
+                const fileSaveSuccess = await saveToFile();
+                if (fileSaveSuccess) {
+                    updateRespawnTimes();
+                }
             };
             
             // Cancel function
@@ -847,6 +1434,7 @@
             };
             
             // Add event listeners
+            setTimeBtn.addEventListener('click', setTimeFunction);
             saveBtn.addEventListener('click', saveChanges);
             cancelBtn.addEventListener('click', cancelChanges);
             
@@ -908,7 +1496,7 @@
             scheduleInput.select();
             
             // Save function
-            const saveChanges = () => {
+            const saveChanges = async () => {
                 const newSchedule = scheduleInput.value.trim();
                 
                 // Validate input
@@ -926,9 +1514,11 @@
                 // Restore action cell
                 actionCell.innerHTML = originalActionContent;
                 
-                // Save to localStorage and update respawn times
-                saveToLocalStorage();
-                updateRespawnTimes();
+                // Save to file and update respawn times
+                const fileSaveSuccess = await saveToFile();
+                if (fileSaveSuccess) {
+                    updateRespawnTimes();
+                }
             };
             
             // Cancel function
@@ -957,10 +1547,95 @@
             document.getElementById('updateTime').textContent = now.toLocaleString();
         }
         
+        // Function to refresh data if updates are available
+        async function refreshDataIfUpdated() {
+            const hasUpdates = await checkForUpdates();
+            
+            if (hasUpdates) {
+                // Show live indicator
+                const liveIndicator = document.getElementById('liveIndicator');
+                liveIndicator.style.display = 'inline-block';
+                
+                // Show notification
+                showNotification('Data has been updated by another user!', 5000);
+                
+                // Reload data
+                await loadFromFile();
+                
+                // Update respawn times
+                updateRespawnTimes();
+                
+                // Hide live indicator after 5 seconds
+                setTimeout(() => {
+                    liveIndicator.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Update polling interval based on whether we found updates
+            updatePollingInterval(hasUpdates);
+        }
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            isPageVisible = !document.hidden;
+            
+            if (isPageVisible) {
+                // Page became visible, restart polling
+                restartPolling();
+                
+                // Check for updates immediately
+                refreshDataIfUpdated();
+            } else {
+                // Page became hidden, stop polling
+                if (pollingTimer) {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                }
+            }
+        });
+        
+        // Handle user activity
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(function(eventName) {
+            document.addEventListener(eventName, function() {
+                lastActivityTime = Date.now();
+                
+                // If user is active, speed up polling
+                if (pollingInterval > minPollingInterval) {
+                    pollingInterval = minPollingInterval;
+                    restartPolling();
+                }
+            }, true);
+        });
+        
         // Initialize the table
-        window.onload = function() {
-            // Load data from localStorage or initialize with defaults
-            const hasSavedData = loadFromLocalStorage();
+        window.onload = async function() {
+            // Try to load data from file
+            const fileLoadSuccess = await loadFromFile();
+            
+            // If file load failed, initialize with defaults
+            if (!fileLoadSuccess) {
+                // Initialize regular bosses with defaults
+                const rows = document.querySelectorAll('#bossTable tbody tr');
+                rows.forEach(row => {
+                    const bossId = row.dataset.bossId;
+                    if (bossId && defaultDeathTimes[bossId] && defaultCooldowns[bossId]) {
+                        row.dataset.deathTime = defaultDeathTimes[bossId];
+                        row.dataset.cooldown = defaultCooldowns[bossId];
+                    }
+                });
+                
+                // Initialize fixed bosses with defaults
+                const fixedRows = document.querySelectorAll('#fixedBossTable tbody tr');
+                fixedRows.forEach(row => {
+                    const bossId = row.dataset.bossId;
+                    if (bossId && fixedSchedules[bossId]) {
+                        row.dataset.fixedSchedule = fixedSchedules[bossId];
+                    }
+                });
+                
+                // Try to save the default data to file
+                await saveToFile();
+            }
             
             // Update respawn times - this ensures time remaining is calculated on page load
             updateRespawnTimes();
@@ -968,10 +1643,11 @@
             // Update time every minute
             setInterval(updateRespawnTimes, 60000);
             
-            // Show notification if loaded saved data
-            if (hasSavedData) {
-                showNotification('Loaded saved data!');
-            }
+            // Start polling
+            restartPolling();
+            
+            // Update polling status display
+            updatePollingStatus();
         };
     </script>
 </body>
